@@ -4,7 +4,7 @@
 `sudo apt-get install wiringpi`
 
 #### Pin numbers
-`wiringPiSetup(); // Initializes wiringPi using wiringPi's simlified number system.`
+`wiringPiSetup(); // Initializes wiringPi using wiringPi's simlified number system.`<br>
 `wiringPiSetupGpio(); // Initializes wiringPi using the Broadcom GPIO pin numbers`
 
 #### Compile program
