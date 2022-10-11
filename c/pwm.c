@@ -41,7 +41,7 @@ int main() {
             case 2:
                 pwmToneWrite(RED_LED_PIN, 2);
                 delay(1);
-                pwmWrite(RED_LED_PIN, PWM_ON);
+                pwmWrite(RED_LED_PIN, 1024);
                 // both LEDs blink at the pattern of 2 times per second (Square wave signal with frequency of 2Hz (50% duty cycle))
                 break;
             case 3:
@@ -66,21 +66,27 @@ void resetLED(int led_pin){
     delay(1);
 }
 
+// Function to set the duty cycle for an LED
+void setDutyCycle(int led_pin, float duty_cycle){
+    int value = PWM_MAX * (duty_cycle / 100); // Calculate value to set for a given duty cycle percentage
+    pwmWrite(led_pin, value);
+}
+
 // Function to turn off an LED
 void offLED(int led_pin) {
     // resetLED(led_pin);
-    pwmWrite(led_pin, PWM_OFF);
+    setDutyCycle(led_pin, 0);
     // delay(1); // Delay required if both LEDs are on the same PWM channel
 }
 // Function to turn on an LED
 void onLED(int led_pin) {
     // resetLED(led_pin);
-    pwmWrite(led_pin, PWM_ON);
+    setDutyCycle(led_pin, 100);
     // delay(1); // Delay required if both LEDs are on the same PWM channel
 }
 
 // Function to make LED blink at a specified rate
 void blinkLED(int led_pin, int rate){
     // pwmSetClock(rate);
-    // pwmWrite(led_pin, PWM_ON);
+    // pwmWrite(led_pin, 1024);
 }
