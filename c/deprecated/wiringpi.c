@@ -1,5 +1,9 @@
+/*
+    Deprecated: wiringPi is no longer used because it does not support setting two different PWM frequencies for the two PWM channels of the Raspberry Pi
+*/
+
 /* Main C program for controlling PWM of the red and green LEDs. This program operates with the assumption that the Raspberry Pi and components have been set up correctly. */
-#include <pigpio.h>     // Include pigpio library, which is used to interact with the GPIO pins (Note: wiringPi not used due to its lack of support for setting separate PWM frequencies for each of the PWM channel on the Raspberry Pi)
+#include <wiringPi.h>   // Include wiringPi library, which is used to interact with the GPIO pins
 #include <stdio.h>      // Include stdio library, which is used for input/output functions
 #include <stdlib.h>     // Include stdlib library, which is used for general purpose functions
 #include "config.h"     // Include configuration file
@@ -9,17 +13,15 @@ int main() {
     // Initialise user's input
     int user_input = 0;
 
-    // Check if there are any issues initialising the GPIO pins
-    if(gpioInitialise() < 0) {
+    // Use Broadcom (BCM) GPIO pin numbers
+    if(wiringPiSetupGpio() != 0) {
         printf("Initialisation of GPIO failed!\n");
         exit(1); // Terminate program with exit failure if setup failed
     }
     else {
-        // Save LED base states (frequency and duty cycle)
-        BASE_RED_LED_FREQ = gpioGetPWMfrequency(RED_LED_PIN);         // Save Red LED's PWM Frequency
-        BASE_RED_LED_DC = gpioGetPWMdutycycle(RED_LED_PIN);           // Save Red LED's PWM Duty Cycle
-        BASE_GREEN_LED_FREQ = gpioGetPWMfrequency(GREEN_LED_PIN);     // Save Green LED's PWM Frequency
-        BASE_GREEN_LED_DC = gpioGetPWMdutycycle(GREEN_LED_PIN);       // Save Green LED's PWM Duty Cycle
+        pinMode(RED_LED_PIN, PWM_OUTPUT);   // Set pin mode for GPIO pin
+        pinMode(GREEN_LED_PIN, PWM_OUTPUT); // Set pin mode for GPIO pin
+        pwmSetMode(PWM_MODE_MS);            // Set PWM mode to Mark-Space mode, which is the traditional PWM mode. By default, the PWM mode is PWM_MODE_BAL, which is Balanced mode. In Balanced mode, the frequency varies with duty cycle. This was implemented by Broadcom to make the on and off PWM pulses as evenly distributed as possible.
     }
     
     // Do-While loop to obtain user input
@@ -46,36 +48,34 @@ int main() {
         }
     } while (user_input >= 0 && user_input <= 3);
 
-    // Program termination procedure
-    resetLEDs();        // Reset both LEDs
-    gpioTerminate();    // Terminate pigpio library before end of program execution
-    return 0;           // Signal successful program execution
+    // Reset PWM
+    return 0; // Signal successful program execution
 
 }
 
-// Function to calculate the duty cycle value
-int getDutyCycle(float duty_cycle){
-    int value = PWM_MAX  * (duty_cycle / 100); // Calculate value to set for a given duty cycle percentage
-    return value;
+// Function to reset LED
+void resetLED(int led_pin){
+    pwmToneWrite(led_pin, PWM_BASE_FREQ); // Reset frequency of PWM clock
+    delay(1);
 }
 
-// Function to reset both LEDs to their base state
-void resetLEDs(){
-    // Reset both LEDs to their base frequencies, but set duty cycle to 0% (turn off both LEDs)
-    gpioHardwarePWM(RED_LED_PIN, BASE_RED_LED_FREQ, getDutyCycle(0));
-    gpioHardwarePWM(GREEN_LED_PIN, BASE_GREEN_LED_FREQ, getDutyCycle(0));
+// Function to set the duty cycle for an LED
+void setDutyCycle(int led_pin, float duty_cycle){
+    int value = PWM_MAX * (duty_cycle / 100); // Calculate value to set for a given duty cycle percentage
+    pwmWrite(led_pin, value);
 }
 
 // Function to turn off an LED
 void offLED(int led_pin) {
-    // To turn off an LED set it's Duty Cycle to 0% (Frequency is set to the defined Critical Flicker Fusion Frequency)
-    gpioHardwarePWM(led_pin, CFF_FREQ, getDutyCycle(0));
+    // resetLED(led_pin);
+    setDutyCycle(led_pin, 0);
+    // delay(1); // Delay required if both LEDs are on the same PWM channel
 }
-
 // Function to turn on an LED
 void onLED(int led_pin) {
-    // To turn on an LED set it's Duty Cycle to 100% (Frequency is set to the defined Critical Flicker Fusion Frequency)
-    gpioHardwarePWM(led_pin, CFF_FREQ, getDutyCycle(100));
+    // resetLED(led_pin);
+    setDutyCycle(led_pin, 100);
+    // delay(1); // Delay required if both LEDs are on the same PWM channel
 }
 
 // Function to make LED blink at a specified rate
