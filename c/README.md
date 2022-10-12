@@ -25,7 +25,7 @@ Making Red LED blink 8 times per second and Green LED blink twice per second, at
 - 2 x 10K Ω Resistors
 
 #### Setup
-- Place both LEDs on the breadboard and connect the Red LED's anode (longer, positive end) to BCM GPIO pin 18, which is the Raspberry Pi's PWM pin (Channel 0). <br>Connect the Green LED's anode (longer, positive end) to BCM GPIO pin 13, which is the Raspberry Pi's PWM pin (Channel 1).
+- Place both LEDs on the breadboard and connect the Red LED's anode (longer, positive end) to BCM GPIO pin 18, which is the Raspberry Pi's PWM pin (Channel 0). Connect the Green LED's anode (longer, positive end) to BCM GPIO pin 13, which is the Raspberry Pi's PWM pin (Channel 1).
     - The two PWM GPIO pins to be connected are highlighted below:
     ![PWM Pins](docs/pins.png)
 - Connect a resistor to each LED's cathode (shorter, negative end), and connect the other end of each resistor to any ground pin on the Raspberry Pi.
@@ -44,12 +44,12 @@ Making Red LED blink 8 times per second and Green LED blink twice per second, at
 `make`<br>
 `sudo make install`<br>
 OR<br>
-`sudo apt-get update`
+`sudo apt-get update`<br>
 `sudo apt-get install pigpio python-pigpio python3-pigpio`
 
 #### Compile program
 `gcc -Wall -pthread prog.c -lpigpio -lrt`<br>
-`sudo ./a.out`<br>
+`sudo ./a.out`<br><br>
 Flags:<br>
 -Wall enables all compiler's warning messages<br>
 -l <library> link to library <br>
