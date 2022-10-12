@@ -15,20 +15,25 @@ int main() {
         exit(1); // Terminate program with exit failure if setup failed
     }
     else {
-        // Save LED base states (frequency and duty cycle)
+        // Save LED base states (frequency)
         BASE_RED_LED_FREQ = gpioGetPWMfrequency(RED_LED_PIN);         // Save Red LED's PWM Frequency
-        BASE_RED_LED_DC = gpioGetPWMdutycycle(RED_LED_PIN);           // Save Red LED's PWM Duty Cycle
         BASE_GREEN_LED_FREQ = gpioGetPWMfrequency(GREEN_LED_PIN);     // Save Green LED's PWM Frequency
-        BASE_GREEN_LED_DC = gpioGetPWMdutycycle(GREEN_LED_PIN);       // Save Green LED's PWM Duty Cycle
     }
     
     // Program execution message
-    printf("CSC1104 Pulse-Width Modulation Program\nThis program enables you to control the PWM of a Red and Green LED, until you have chosen to end to program.\n\n");
+    printf("CSC1104 Pulse-Width Modulation Program\n"
+           "This program enables you to control the PWM of a Red and Green LED, until you have chosen to end to program.\n\n");
 
     // Do-While loop to obtain user input
     do {    
         // Get user's input
-        printf("Please select and enter an option from the following:\n(0) Turn off both LEDs\n(1) Turn on both LEDs\n(2) Make both LEDs blink twice per second\n(3) Make Red LED blink 8 times per second and Green LED blink twice per second at reduced brightness\n(Any other number) End Program\n\nEnter your choice: ");
+        printf("Please select and enter an option from the following:\n"
+               "(0) Turn off both LEDs\n"
+               "(1) Turn on both LEDs\n"
+               "(2) Make both LEDs blink twice per second\n"
+               "(3) Make Red LED blink 8 times per second and Green LED blink twice per second at reduced brightness\n"
+               "(Any other number) End Program\n\n"
+               "Enter your choice: ");
         scanf("%d", &user_input);
 
         // Check user's input option

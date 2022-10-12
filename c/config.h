@@ -7,10 +7,8 @@
 #define CFF_FREQ 500            // Critical Flicker Fusion Frequency (frequency at which flickering light is perceived as continuous by the human eye)
 
 // Global variables
-int BASE_RED_LED_FREQ;          // Red LED's base PWM Frequency
-int BASE_RED_LED_DC;            // Red LED's base PWM Duty Cycle (for redundancy as the default duty cycle is negative)
-int BASE_GREEN_LED_FREQ;        // Green LED's base PWM Frequency
-int BASE_GREEN_LED_DC;          // Green LED's base PWM Duty Cycle (for redundancy as the default duty cycle is negative)
+int BASE_RED_LED_FREQ;          // Red LED's base PWM Frequency (base frequency is usually 800 Hz)
+int BASE_GREEN_LED_FREQ;        // Green LED's base PWM Frequency (base frequency is usually 800 Hz)
 
 // Function prototypes
 int getDutyCycleValue(float duty_cycle);            // Function to calculate the duty cycle value
