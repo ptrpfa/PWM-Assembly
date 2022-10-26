@@ -1,5 +1,5 @@
 /* Main C program for controlling PWM of the Red and Green LEDs. This program operates with the assumption that the Raspberry Pi and its components have been set up correctly. */
-#include <pigpio.h>     // Include pigpio library, which is used to interact with the GPIO pins (Note: wiringPi is not used due to its lack of support for setting separate PWM frequencies for each of the PWM channel on the Raspberry Pi)
+#include <pigpio.h>     // Include pigpio library, which is used to interact with the GPIO pins (Note: Using pigpio, not pigpiod_if2!)
 #include <stdio.h>      // Include stdio library, which is used for input/output functions
 #include <stdlib.h>     // Include stdlib library, which is used for general purpose functions
 #include "config.h"     // Include configuration file
@@ -61,7 +61,7 @@ int main() {
                 break;
             case 3:
                 // Option for making Red LED blink 8 times per second & Green LED blink twice per second at reduced brightness
-                printf("\nMaking Red LED blink 8 times per second, and Green LED blink twice per second at reduced brightness (12.5%% duty cycle)..\n");
+                printf("\nMaking Red LED blink 8 times per second (50%% duty cycle), and Green LED blink twice per second at reduced brightness (12.5%% duty cycle)..\n");
                 blinkLED(RED_LED_PIN, 8, 50);       // Set Red LED's Duty Cycle to 50% for it to be turned on half the time (square wave signal), and set Frequency to 8 for it to blink 8 times per second
                 blinkLED(GREEN_LED_PIN, 2, 12.5);   // Set Green LED's Duty Cycle to 12.5% for it to be turned on with reduced brightness by 4 times, and set Frequency to 2 for it to blink twice per second
                 printf("Red LED is blinking 8 times per second and Green LED is blinking twice per second at reduced brightness!\n\n");
