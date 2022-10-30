@@ -84,7 +84,7 @@ int main() {
 }
 
 // Function to calculate the duty cycle value
-int getDutyCycle(float duty_cycle){
+int getDutyCycleValue(float duty_cycle){
     int value = PWM_MAX  * (duty_cycle / 100); // Calculate value to set for a given duty cycle percentage
     return value;
 }
@@ -92,24 +92,24 @@ int getDutyCycle(float duty_cycle){
 // Function to reset both LEDs to their base state
 void resetLEDs(){
     // Reset both LEDs to their base frequencies, but set duty cycle to 0% (turn off both LEDs)
-    gpioHardwarePWM(RED_LED_PIN, BASE_RED_LED_FREQ, getDutyCycle(0));
-    gpioHardwarePWM(GREEN_LED_PIN, BASE_GREEN_LED_FREQ, getDutyCycle(0));
+    gpioHardwarePWM(RED_LED_PIN, BASE_RED_LED_FREQ, getDutyCycleValue(0));
+    gpioHardwarePWM(GREEN_LED_PIN, BASE_GREEN_LED_FREQ, getDutyCycleValue(0));
 }
 
 // Function to turn off an LED
 void offLED(int led_pin) {
     // To turn off an LED set it's Duty Cycle to 0% (Frequency is set to the defined Critical Flicker Fusion Frequency)
-    gpioHardwarePWM(led_pin, CFF_FREQ, getDutyCycle(0));
+    gpioHardwarePWM(led_pin, CFF_FREQ, getDutyCycleValue(0));
 }
 
 // Function to turn on an LED
 void onLED(int led_pin) {
     // To turn on an LED set it's Duty Cycle to 100% (Frequency is set to the defined Critical Flicker Fusion Frequency)
-    gpioHardwarePWM(led_pin, CFF_FREQ, getDutyCycle(100));
+    gpioHardwarePWM(led_pin, CFF_FREQ, getDutyCycleValue(100));
 }
 
 // Function to make LED blink at a specified rate
 void blinkLED(int led_pin, int freq, float dc){
     // Set LED's frequency and duty cycle to the provided values to make it blink
-    gpioHardwarePWM(led_pin, freq, getDutyCycle(dc));
+    gpioHardwarePWM(led_pin, freq, getDutyCycleValue(dc));
 }
