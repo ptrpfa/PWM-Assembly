@@ -51,6 +51,7 @@
 
 @ GPIO Constants
 .equ PIN16,   16             @ GPIO Pin 16
+.equ PIN17,   17		     @ GPIO Pin 17
 .equ GPFSEL1, 0x04           @ Function register offset
 .equ GPSET0,  0x1C           @ Set register offset
 .equ GPCLR0,  0x28           @ Clear register offset
@@ -94,19 +95,51 @@ main:
 
     MOV R1, #PIN16              @ Set PIN 16 to be used
     BL init_output              @ Setup GPIO pin function register
+    B exit                      @ Goto exit
 
 loop:
-    MOV R1, #PIN16              @ Set PIN 16 to be used
-    BL set_pin                  @ Set pin to turn on LED
+    LDR R0, =askuserprompt      @ Initial prompt string
+    BL printf                   @ Call printf function
 
-    BL wait                     @ Wait a second
+    LDR R0, =scanf_fmt          @ scanf format specifier
+    LDR R1, =message            @ Input buffer address
+    BL scanf                    @ Call scanf function
 
-    MOV R1, #PIN16              @ Set PIN 16 to be used
-    BL clear_pin                @ Set pin to turn off LED
+    LDR R4, =message            @ Input buffer address
+    LDR R1, [R4]                @ Dereference input buffer
+
+    CMP R1, #0                  @ Compare value with 0
+    BLE wrong_input             @ If value <= 0, goto wrong_input
+    CMP R1, #4                  @ Compare value with 4
+    BGE wrong_input             @ If value >= 4, goto wrong_input
+
+    LDR R0, =returnprompt       @ Output prompt string
+    BL printf                   @ Call printf function
+
+    CMP R1, #1           	  @ Compare value with 1    
+    ITT EQ				  @ If-then-then
+    MOVEQ R1, #PIN16		  @ Set PIN 16 to be used
+    BEQ set_pin 			  @ Set pin to turn on LED
+
+    CMP R1, #2           	  @ Compare value with 2    
+    ITT EQ				  @ If-then-then
+    MOVEQ R1, #PIN17		  @ Set PIN 17 to be used
+    BEQ set_pin 			  @ Set pin to turn on LED
+
+    CMP R1, #3           	  @ Compare value with 3  
+    ITTTT EQ		        @ If-then-then
+    MOVEQ R1, #PIN16		  @ Set PIN 16 to be used
+    BEQ clear_pin 		  @ Set pin to turn on LED
+    MOVEQ R1, #PIN17		  @ Set PIN 17 to be used
+    BEQ clear_pin 		  @ Set pin to turn on LED
 
     BL wait                     @ Wait a second
 
     B loop                      @ Loopback
+
+wrong_input:
+    LDR R0, =wrongprompt        @ Wrong input prompt string
+    BL printf                   @ Call printf function
 
 exit:
     MOV R7, #1                  @ Syscall exit
@@ -144,10 +177,24 @@ clear_pin:
     STR R2,[R3]                 @ Update PIN number at GPCLR0
     BX lr                       @ Return to caller
 
+
 gpiobase:  .word   0xfe200000   @ GPIO base address for Raspberry Pi 3
 flags:     .word   2|256        @ Open flag permissions (O_RDWR|O_SYNC)
 
 .data
+message: .word 0                @ Initialize input buffer
+
 .balign 4
 addr_file: .asciz  "/dev/gpiomem\0"   @ GPIO Controller
 
+.balign 4
+scanf_fmt: .string "%d"         @ scanf format specifier
+
+.balign 4
+askuserprompt: .asciz "Please Enter a number 1 to 3: "              @ Initial prompt string
+
+.balign 4
+returnprompt: .asciz "Your inputted number is: %d\n"                @ Output prompt string
+
+.balign 4
+wrongprompt: .asciz "Your inputted number is not within 1 to 3\n"   @ Wrong input prompt string
