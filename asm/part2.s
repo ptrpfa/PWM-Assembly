@@ -124,30 +124,42 @@ loop:
 
     @ if (message == 1), Turn on red LED
     CMP R1, #1                  @ Compare value with 1
-    LDREQ R0, =oneprompt        @ Choice one prompt string
-    BLEQ printf                 @ Call printf function
-    MOVEQ R1, #PIN16            @ Set PIN 16 to be used
-    BLEQ set_pin                @ Set pin to turn on LED
+    BLEQ on_red                 @ Call on_red
     BEQ loop                    @ Loopback
 
     @ if (message == 2), Turn on green LED
     CMP R1, #2                  @ Compare value with 2
-    LDREQ R0, =twoprompt        @ Choice two prompt string
-    BLEQ printf                 @ Call printf function
-    MOVEQ R1, #PIN17            @ Set PIN 17 to be used
-    BEQ set_pin                 @ Set pin to turn on LED
+    BLEQ on_green               @ Call on_green
     BEQ loop                    @ Loopback
 
     @ if (message == 3), Turn off both LEDs
     CMP R1, #3                  @ Compare value with 3
-    LDREQ R0, =threeprompt      @ Choice three prompt string
-    BLEQ printf                 @ Call printf function
-    MOVEQ R1, #PIN16            @ Set PIN 16 to be used
-    BEQ clear_pin               @ Set pin to turn on LED
-    MOVEQ R1, #PIN17            @ Set PIN 17 to be used
-    BEQ clear_pin               @ Set pin to turn on LED
+    BLEQ off_led                @ Call off_led
 
     B loop                      @ Loopback
+
+on_red:
+    LDR R0, =oneprompt          @ Choice one prompt string
+    BL printf                   @ Call printf function
+    MOV R1, #PIN16              @ Set PIN 16 to be used
+    BL set_pin                  @ Set pin to turn on LED
+    BX lr                       @ Return to caller
+
+on_green:
+    LDR R0, =twoprompt          @ Choice two prompt string
+    BL printf                   @ Call printf function
+    MOV R1, #PIN17              @ Set PIN 17 to be used
+    BL set_pin                  @ Set pin to turn on LED
+    BX lr                       @ Return to caller
+
+off_led:
+    LDR R0, =threeprompt        @ Choice three prompt string
+    BL printf                   @ Call printf function
+    MOV R1, #PIN16              @ Set PIN 16 to be used
+    BL clear_pin                @ Set pin to turn on LED
+    MOV R1, #PIN17              @ Set PIN 17 to be used
+    BL clear_pin                @ Set pin to turn on LED
+    BX lr                       @ Return to caller
 
 wrong_input:
     LDR R0, =wrongprompt        @ Wrong input prompt string
@@ -161,8 +173,12 @@ init_output:
     LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
     ADD R3, R3, #GPFSEL1        @ Add offset to GPFSEL1
     LDR R2, [R3]                @ Get value of GPFSEL1
+    UDIV R4, R1, #10            @ Get R1 // 10
+    MUL R4, R4, #10             @ Get R1 // 10 * 10
+    SUB R1, R1, R4              @ Get R1 % 10
+    MUL R1, R1, #3              @ Get (R1 % 10) * 3
     MOV R4, #GPFSEL1_MASK       @ GPFSEL1_MASK bit
-    LSL R4, R4, R1              @ Shift GPFSEL1_MASK bit to PIN number
+    LSL R4, R4, R1              @ Shift GPFSEL1_MASK bit with result
     ORR R2, R2, R4              @ Set mask for FSEL output
     STR R2, [R3]                @ Store set bits at GPFSEL1
     BX lr                       @ Return to caller
