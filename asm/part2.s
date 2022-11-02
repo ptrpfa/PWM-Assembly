@@ -49,12 +49,14 @@
 @ GPCLR0  [Offset: 0x28] responsible for GPIO Pins 0 to 31
 
 @ GPIO Constants
-.equ PIN13,   13             @ GPIO Pin 13
-.equ PIN18,   18             @ GPIO Pin 18
+.equ PIN12,   12             @ GPIO Pin 12
+.equ PIN23,   23             @ GPIO Pin 23
 .equ GPFSEL1, 0x04           @ Function register offset
+.equ GPFSEL2, 0x08           @ Function register offset
 .equ GPSET0,  0x1C           @ Set register offset
 .equ GPCLR0,  0x28           @ Clear register offset
-.equ GPFSEL1_MASK, 0b1       @ Mask for function register
+.equ GPFSEL1_MASK, 0x40      @ Mask for function register
+.equ GPFSEL2_MASK, 0x200     @ Mask for function register
 
 @ mmap Constants
 .equ BLOCK_SIZE, 4096        @ Memory page size
@@ -91,10 +93,19 @@ main:
 
     STR R0, [SP, #STACK_OFFSET] @ Store memory mapped GPIO register location in stack
 
-    MOV R1, #3                  @ #PIN13 % 10
-    BL init_output              @ Setup GPIO pin function register
-    MOV R1, #8                  @ #PIN18 % 10
-    BL init_output              @ Setup GPIO pin function register
+    LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
+    ADD R3, R3, #GPFSEL1        @ Add offset to GPFSEL1
+    LDR R2, [R3]                @ Get value of GPFSEL1
+    MOV R4, #GPFSEL1_MASK       @ GPFSEL1_MASK bit
+    ORR R2, R2, R4              @ Set mask for FSEL output
+    STR R2, [R3]                @ Store set bits at GPFSEL1
+
+    LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
+    ADD R3, R3, #GPFSEL2        @ Add offset to GPFSEL2
+    LDR R2, [R3]                @ Get value of GPFSEL2
+    MOV R4, #GPFSEL2_MASK       @ GPFSEL1_MASK bit
+    ORR R2, R2, R4              @ Set mask for FSEL output
+    STR R2, [R3]                @ Store set bits at GPFSEL1
 
 loop:
     @ printf(instructionsprompt)
@@ -141,23 +152,23 @@ loop:
 on_red:
     LDR R0, =oneprompt          @ Choice one prompt string
     BL printf                   @ Call printf function
-    MOV R1, #PIN13              @ Set PIN 13 to be used
+    MOV R1, #PIN12              @ Set PIN 12 to be used
     BL set_pin                  @ Set pin to turn on LED
     BX lr                       @ Return to caller
 
 on_green:
     LDR R0, =twoprompt          @ Choice two prompt string
     BL printf                   @ Call printf function
-    MOV R1, #PIN18              @ Set PIN 18 to be used
+    MOV R1, #PIN23              @ Set PIN 23 to be used
     BL set_pin                  @ Set pin to turn on LED
     BX lr                       @ Return to caller
 
 off_led:
     LDR R0, =threeprompt        @ Choice three prompt string
     BL printf                   @ Call printf function
-    MOV R1, #PIN13              @ Set PIN 13 to be used
+    MOV R1, #PIN12              @ Set PIN 12 to be used
     BL clear_pin                @ Set pin to turn on LED
-    MOV R1, #PIN18              @ Set PIN 18 to be used
+    MOV R1, #PIN23              @ Set PIN 23 to be used
     BL clear_pin                @ Set pin to turn on LED
     BX lr                       @ Return to caller
 
@@ -170,15 +181,6 @@ exit:
     SWI 0                       @ Software Interrupt for syscall
 
 init_output:
-    LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
-    ADD R3, R3, #GPFSEL1        @ Add offset to GPFSEL1
-    LDR R2, [R3]                @ Get value of GPFSEL1
-    MOV R4, #3                  @ Initialize #3
-    MUL R1, R1, R4              @ Get (R1 % 10) * 3
-    MOV R4, #GPFSEL1_MASK       @ GPFSEL1_MASK bit
-    LSL R4, R4, R1              @ Shift GPFSEL1_MASK bit with result
-    ORR R2, R2, R4              @ Set mask for FSEL output
-    STR R2, [R3]                @ Store set bits at GPFSEL1
     BX lr                       @ Return to caller
 
 set_pin:
