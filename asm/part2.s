@@ -8,8 +8,10 @@
 .extern mmap
 
 /*
-//Raspberry Pi 2 IO base address
-#if(RPI == RPI2)
+//Raspberry Pi 3 IO base address
+#if(RPI == RPI3)
+    #define ARM_IO_BASE        0xfe200000
+#elif(RPI == RPI2)
     #define ARM_IO_BASE        0x3F000000
 #elif(RPI == RPI1)
     #define ARM_IO_BASE        0x20000000
@@ -49,8 +51,8 @@
 @ GPCLR0  [Offset: 0x28] responsible for GPIO Pins 0 to 31
 
 @ GPIO Constants
-.equ PIN16,   16             @ GPIO Pin 16
-.equ PIN17,   17             @ GPIO Pin 17
+.equ RED_LED_PIN,   18       @ GPIO Pin 18
+.equ GREEN_LED_PIN, 13       @ GPIO Pin 13
 .equ GPFSEL1, 0x04           @ Function register offset
 .equ GPSET0,  0x1C           @ Set register offset
 .equ GPCLR0,  0x28           @ Clear register offset
@@ -92,9 +94,9 @@ main:
 
     MOV R10, R0                 @ Store memory mapped GPIO register location in R10
 
-    MOV R1, #18                 @ Set PIN 16 bit offset
+    MOV R1, #24                 @ Set PIN 18 bit offset
     BL init_output              @ Setup GPIO pin function register
-    MOV R1, #21                 @ Set PIN 17 bit offset
+    MOV R1, #9                  @ Set PIN 13 bit offset
     BL init_output              @ Setup GPIO pin function register
 
 loop:
@@ -149,7 +151,7 @@ on_red:
     PUSH {R0, R1, lr}           @ Save function context
     LDR R0, =oneprompt          @ Choice one prompt string
     BL printf                   @ Call printf function
-    MOV R1, #PIN16              @ Set PIN 16 to be used
+    MOV R1, #RED_LED_PIN        @ Set PIN 18 to be used
     BL set_pin                  @ Set pin to turn on LED
     POP {R0, R1, pc}            @ Return to caller
 
@@ -157,7 +159,7 @@ on_green:
     PUSH {R0, R1, lr}           @ Save function context
     LDR R0, =twoprompt          @ Choice two prompt string
     BL printf                   @ Call printf function
-    MOV R1, #PIN17              @ Set PIN 17 to be used
+    MOV R1, #GREEN_LED_PIN      @ Set PIN 13 to be used
     BL set_pin                  @ Set pin to turn on LED
     POP {R0, R1, pc}            @ Return to caller
 
@@ -165,15 +167,16 @@ off_led:
     PUSH {R0, R1, lr}           @ Save function context
     LDR R0, =threeprompt        @ Choice three prompt string
     BL printf                   @ Call printf function
-    MOV R1, #PIN16              @ Set PIN 16 to be used
+    MOV R1, #RED_LED_PIN        @ Set PIN 18 to be used
     BL clear_pin                @ Set pin to turn on LED
-    MOV R1, #PIN17              @ Set PIN 17 to be used
+    MOV R1, #GREEN_LED_PIN      @ Set PIN 13 to be used
     BL clear_pin                @ Set pin to turn on LED
     POP {R0, R1, pc}            @ Return to caller
 
 wrong_input:
     LDR R0, =wrongprompt        @ Wrong input prompt string
     BL printf                   @ Call printf function
+    BL off_led                  @ Call off_led
 
 exit:
     MOV R7, #1                  @ Syscall exit
