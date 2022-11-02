@@ -123,8 +123,7 @@ loop:
     BL printf                   @ Call printf function
 
     @ if (message == 1), Turn on red LED
-    CMP R1, #1                  @ Compare value with 1    
-    ITTTTT EQ                   @ If-then-then
+    CMP R1, #1                  @ Compare value with 1
     LDREQ R0, =oneprompt        @ Choice one prompt string
     BLEQ printf                 @ Call printf function
     MOVEQ R1, #PIN16            @ Set PIN 16 to be used
@@ -132,8 +131,7 @@ loop:
     BEQ loop                    @ Loopback
 
     @ if (message == 2), Turn on green LED
-    CMP R1, #2                  @ Compare value with 2    
-    ITTTTT EQ                   @ If-then-then
+    CMP R1, #2                  @ Compare value with 2
     LDREQ R0, =twoprompt        @ Choice two prompt string
     BLEQ printf                 @ Call printf function
     MOVEQ R1, #PIN17            @ Set PIN 17 to be used
@@ -141,8 +139,7 @@ loop:
     BEQ loop                    @ Loopback
 
     @ if (message == 3), Turn off both LEDs
-    CMP R1, #3                  @ Compare value with 3  
-    ITTTTTT EQ                  @ If-then-then
+    CMP R1, #3                  @ Compare value with 3
     LDREQ R0, =threeprompt      @ Choice three prompt string
     BLEQ printf                 @ Call printf function
     MOVEQ R1, #PIN16            @ Set PIN 16 to be used
@@ -164,22 +161,25 @@ init_output:
     LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
     ADD R3, R3, #GPFSEL1        @ Add offset to GPFSEL1
     LDR R2, [R3]                @ Get value of GPFSEL1
-    LSL R4, #GPFSEL1_MASK, R1   @ Shift GPFSEL1_MASK bit to PIN number
-    ORR R2, R2, #GPFSEL1_MASK   @ Set mask for FSEL output
+    MOV R4, #GPFSEL1_MASK       @ GPFSEL1_MASK bit
+    LSL R4, R4, R1              @ Shift GPFSEL1_MASK bit to PIN number
+    ORR R2, R2, R4              @ Set mask for FSEL output
     STR R2, [R3]                @ Store set bits at GPFSEL1
     BX lr                       @ Return to caller
 
 set_pin:
     LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
     ADD R3, R3, #GPSET0         @ Add offset to GPSET0
-    LSL R2, #1, R1              @ Shift on bit to PIN number
+    MOV R2, #1                  @ Turn on bit
+    LSL R2, R2, R1              @ Shift on bit to PIN number
     STR R2,[R3]                 @ Update PIN number at GPSET0
     BX lr                       @ Return to caller
 
 clear_pin:
     LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
     ADD R3, R3, #GPCLR0         @ Add offset to GPCLR0
-    LSL R2, #1, R1              @ Shift off bit to PIN number
+    MOV R2, #1                  @ Turn off bit
+    LSL R2, R2, R1              @ Shift off bit to PIN number
     STR R2,[R3]                 @ Update PIN number at GPCLR0
     BX lr                       @ Return to caller
 
