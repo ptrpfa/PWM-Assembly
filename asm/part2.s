@@ -91,9 +91,9 @@ main:
 
     STR R0, [SP, #STACK_OFFSET] @ Store memory mapped GPIO register location in stack
 
-    MOV R1, #PIN16 MOD 10       @ Set PIN 16 to be used
+    MOV R1, #6                  @ #PIN16 % 10
     BL init_output              @ Setup GPIO pin function register
-    MOV R1, #PIN17 MOD 10       @ Set PIN 17 to be used
+    MOV R1, #7                  @ #PIN17 % 10
     BL init_output              @ Setup GPIO pin function register
 
 loop:
