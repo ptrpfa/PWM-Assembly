@@ -49,8 +49,8 @@
 @ GPCLR0  [Offset: 0x28] responsible for GPIO Pins 0 to 31
 
 @ GPIO Constants
-.equ PIN16,   16             @ GPIO Pin 16
-.equ PIN17,   17             @ GPIO Pin 17
+.equ PIN13,   13             @ GPIO Pin 13
+.equ PIN18,   18             @ GPIO Pin 18
 .equ GPFSEL1, 0x04           @ Function register offset
 .equ GPSET0,  0x1C           @ Set register offset
 .equ GPCLR0,  0x28           @ Clear register offset
@@ -91,9 +91,9 @@ main:
 
     STR R0, [SP, #STACK_OFFSET] @ Store memory mapped GPIO register location in stack
 
-    MOV R1, #6                  @ #PIN16 % 10
+    MOV R1, #3                  @ #PIN13 % 10
     BL init_output              @ Setup GPIO pin function register
-    MOV R1, #7                  @ #PIN17 % 10
+    MOV R1, #8                  @ #PIN18 % 10
     BL init_output              @ Setup GPIO pin function register
 
 loop:
@@ -141,23 +141,23 @@ loop:
 on_red:
     LDR R0, =oneprompt          @ Choice one prompt string
     BL printf                   @ Call printf function
-    MOV R1, #PIN16              @ Set PIN 16 to be used
+    MOV R1, #PIN13              @ Set PIN 13 to be used
     BL set_pin                  @ Set pin to turn on LED
     BX lr                       @ Return to caller
 
 on_green:
     LDR R0, =twoprompt          @ Choice two prompt string
     BL printf                   @ Call printf function
-    MOV R1, #PIN17              @ Set PIN 17 to be used
+    MOV R1, #PIN18              @ Set PIN 18 to be used
     BL set_pin                  @ Set pin to turn on LED
     BX lr                       @ Return to caller
 
 off_led:
     LDR R0, =threeprompt        @ Choice three prompt string
     BL printf                   @ Call printf function
-    MOV R1, #PIN16              @ Set PIN 16 to be used
+    MOV R1, #PIN13              @ Set PIN 13 to be used
     BL clear_pin                @ Set pin to turn on LED
-    MOV R1, #PIN17              @ Set PIN 17 to be used
+    MOV R1, #PIN18              @ Set PIN 18 to be used
     BL clear_pin                @ Set pin to turn on LED
     BX lr                       @ Return to caller
 
