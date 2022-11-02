@@ -6,7 +6,6 @@
 .extern printf
 .extern open
 .extern mmap
-.extern usleep
 
 /*
 //Raspberry Pi 2 IO base address
@@ -51,7 +50,7 @@
 
 @ GPIO Constants
 .equ PIN16,   16             @ GPIO Pin 16
-.equ PIN17,   17		     @ GPIO Pin 17
+.equ PIN17,   17             @ GPIO Pin 17
 .equ GPFSEL1, 0x04           @ Function register offset
 .equ GPSET0,  0x1C           @ Set register offset
 .equ GPCLR0,  0x28           @ Clear register offset
@@ -63,7 +62,6 @@
 .equ MAP_SHARED, 1           @ Shared permissions
 
 @ Misc Constants
-.equ SLEEP_SEC,    1         @ Seconds for sleep
 .equ STACK_OFFSET, 4         @ Stack offset size
 
 .text
@@ -95,12 +93,19 @@ main:
 
     MOV R1, #PIN16              @ Set PIN 16 to be used
     BL init_output              @ Setup GPIO pin function register
-    B exit                      @ Goto exit
+    MOV R1, #PIN17              @ Set PIN 17 to be used
+    BL init_output              @ Setup GPIO pin function register
 
 loop:
+    @ printf(instructionsprompt)
+    LDR R0, =instructionsprompt @ Instructions prompt string
+    BL printf                   @ Call printf function
+
+    @ printf(askuserprompt)
     LDR R0, =askuserprompt      @ Initial prompt string
     BL printf                   @ Call printf function
 
+    @ scanf("%d", &message)
     LDR R0, =scanf_fmt          @ scanf format specifier
     LDR R1, =message            @ Input buffer address
     BL scanf                    @ Call scanf function
@@ -108,6 +113,7 @@ loop:
     LDR R4, =message            @ Input buffer address
     LDR R1, [R4]                @ Dereference input buffer
 
+    @ if (message <= 0 || message >= 4), exit gracefully
     CMP R1, #0                  @ Compare value with 0
     BLE wrong_input             @ If value <= 0, goto wrong_input
     CMP R1, #4                  @ Compare value with 4
@@ -116,24 +122,33 @@ loop:
     LDR R0, =returnprompt       @ Output prompt string
     BL printf                   @ Call printf function
 
-    CMP R1, #1           	  @ Compare value with 1    
-    ITT EQ				  @ If-then-then
-    MOVEQ R1, #PIN16		  @ Set PIN 16 to be used
-    BEQ set_pin 			  @ Set pin to turn on LED
+    @ if (message == 1), Turn on red LED
+    CMP R1, #1                  @ Compare value with 1    
+    ITTTTT EQ                   @ If-then-then
+    LDREQ R0, =oneprompt        @ Choice one prompt string
+    BLEQ printf                 @ Call printf function
+    MOVEQ R1, #PIN16            @ Set PIN 16 to be used
+    BLEQ set_pin                @ Set pin to turn on LED
+    BEQ loop                    @ Loopback
 
-    CMP R1, #2           	  @ Compare value with 2    
-    ITT EQ				  @ If-then-then
-    MOVEQ R1, #PIN17		  @ Set PIN 17 to be used
-    BEQ set_pin 			  @ Set pin to turn on LED
+    @ if (message == 2), Turn on green LED
+    CMP R1, #2                  @ Compare value with 2    
+    ITTTTT EQ                   @ If-then-then
+    LDREQ R0, =twoprompt        @ Choice two prompt string
+    BLEQ printf                 @ Call printf function
+    MOVEQ R1, #PIN17            @ Set PIN 17 to be used
+    BEQ set_pin                 @ Set pin to turn on LED
+    BEQ loop                    @ Loopback
 
-    CMP R1, #3           	  @ Compare value with 3  
-    ITTTT EQ		        @ If-then-then
-    MOVEQ R1, #PIN16		  @ Set PIN 16 to be used
-    BEQ clear_pin 		  @ Set pin to turn on LED
-    MOVEQ R1, #PIN17		  @ Set PIN 17 to be used
-    BEQ clear_pin 		  @ Set pin to turn on LED
-
-    BL wait                     @ Wait a second
+    @ if (message == 3), Turn off both LEDs
+    CMP R1, #3                  @ Compare value with 3  
+    ITTTTTT EQ                  @ If-then-then
+    LDREQ R0, =threeprompt      @ Choice three prompt string
+    BLEQ printf                 @ Call printf function
+    MOVEQ R1, #PIN16            @ Set PIN 16 to be used
+    BEQ clear_pin               @ Set pin to turn on LED
+    MOVEQ R1, #PIN17            @ Set PIN 17 to be used
+    BEQ clear_pin               @ Set pin to turn on LED
 
     B loop                      @ Loopback
 
@@ -145,18 +160,11 @@ exit:
     MOV R7, #1                  @ Syscall exit
     SWI 0                       @ Software Interrupt for syscall
 
-wait:
-    PUSH { R0, lr }             @ Save used registers on stack
-    MOV R0, #SLEEP_SEC          @ Seconds for sleep
-    BL sleep                    @ Call sleep function
-    POP { R0, pc }              @ Return to caller
-
 init_output:
     LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
     ADD R3, R3, #GPFSEL1        @ Add offset to GPFSEL1
     LDR R2, [R3]                @ Get value of GPFSEL1
-    MOV R4, #GPFSEL1_MASK       @ Initialize GPFSEL1_MASK
-    LSL R4, R4, R1              @ Shift bit to PIN number
+    LSL R4, #GPFSEL1_MASK, R1   @ Shift GPFSEL1_MASK bit to PIN number
     ORR R2, R2, #GPFSEL1_MASK   @ Set mask for FSEL output
     STR R2, [R3]                @ Store set bits at GPFSEL1
     BX lr                       @ Return to caller
@@ -164,16 +172,14 @@ init_output:
 set_pin:
     LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
     ADD R3, R3, #GPSET0         @ Add offset to GPSET0
-    MOV R2, #1                  @ Turn on bit
-    LSL R2, R2, R1              @ Shift bit to PIN number
+    LSL R2, #1, R1              @ Shift on bit to PIN number
     STR R2,[R3]                 @ Update PIN number at GPSET0
     BX lr                       @ Return to caller
 
 clear_pin:
     LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
     ADD R3, R3, #GPCLR0         @ Add offset to GPCLR0
-    MOV R2, #1                  @ Turn off bit
-    LSL R2, R2, R1              @ Shift bit to PIN number
+    LSL R2, #1, R1              @ Shift off bit to PIN number
     STR R2,[R3]                 @ Update PIN number at GPCLR0
     BX lr                       @ Return to caller
 
@@ -182,19 +188,32 @@ gpiobase:  .word   0xfe200000   @ GPIO base address for Raspberry Pi 3
 flags:     .word   2|256        @ Open flag permissions (O_RDWR|O_SYNC)
 
 .data
-message: .word 0                @ Initialize input buffer
+message: .word 0                                           @ Initialize input buffer
 
 .balign 4
-addr_file: .asciz  "/dev/gpiomem\0"   @ GPIO Controller
+addr_file: .asciz  "/dev/gpiomem\0"                        @ GPIO Controller
 
 .balign 4
-scanf_fmt: .string "%d"         @ scanf format specifier
+scanf_fmt: .string "%d"                                    @ scanf format specifier
 
 .balign 4
-askuserprompt: .asciz "Please Enter a number 1 to 3: "              @ Initial prompt string
+instructionsprompt: .asciz "Please select and enter an option from the following:\n(1) Turn on red LED\n(2) Turn on green LED\n(3) Turn off both LEDs\n(Any other number) End Program\n\n"   @ Instructions prompt string
 
 .balign 4
-returnprompt: .asciz "Your inputted number is: %d\n"                @ Output prompt string
+askuserprompt: .asciz "Enter your choice: "                @ Initial prompt string
 
 .balign 4
-wrongprompt: .asciz "Your inputted number is not within 1 to 3\n"   @ Wrong input prompt string
+returnprompt: .asciz "Your inputted number is: %d\n"       @ Output prompt string
+
+.balign 4
+oneprompt: .asciz "Turning on red LED\n"                   @ Choice one prompt string
+
+.balign 4
+twoprompt: .asciz "Turning on green LED\n"                 @ Choice two prompt string
+
+.balign 4
+threeprompt: .asciz "Turning off both LEDs\n"              @ Choice three prompt string
+
+.balign 4
+wrongprompt: .asciz "Ending program\n"                     @ Wrong input prompt string
+
