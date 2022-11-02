@@ -62,13 +62,8 @@
 .equ PROT_RDWR,  0x3         @ Read-write protection (PROT_READ|PROT_WRITE)
 .equ MAP_SHARED, 1           @ Shared permissions
 
-@ Misc Constants
-.equ STACK_OFFSET, 4         @ Stack offset size
-
 .text
 main:
-    SUB SP, SP, #STACK_OFFSET   @ Allocate stack by 4 bytes
-
     @ Open /dev/gpiomem for read-write and syncing
     @ fd = open("/dev/gpiomem\0", O_RDWR)
     LDR R0, =addr_file          @ GPIO Controller address
@@ -90,7 +85,7 @@ main:
     CMP R0, #-1                 @ Compare mmap return value to -1
     BEQ exit                    @ If value == -1, goto exit
 
-    STR R0, [SP, #STACK_OFFSET] @ Store memory mapped GPIO register location in stack
+    STR R0, =memaddress         @ Store memory mapped GPIO register location in stack
 
     MOV R1, #18                 @ Set PIN 16 bit offset
     BL init_output              @ Setup GPIO pin function register
@@ -171,7 +166,8 @@ exit:
     SWI 0                       @ Software Interrupt for syscall
 
 init_output:
-    LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
+    LDR R3, =memaddress         @ Load GPIO memory location address
+    LDR R3, [R3]                @ Dereference GPIO memory location
     ADD R3, R3, #GPFSEL1        @ Add offset to GPFSEL1
     LDR R2, [R3]                @ Get value of GPFSEL1
     MOV R4, #CLEAR_MASK         @ CLEAR_MASK bit
@@ -184,7 +180,8 @@ init_output:
     BX lr                       @ Return to caller
 
 set_pin:
-    LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
+    LDR R3, =memaddress         @ Load GPIO memory location address
+    LDR R3, [R3]                @ Dereference GPIO memory location
     ADD R3, R3, #GPSET0         @ Add offset to GPSET0
     MOV R2, #1                  @ Turn on bit
     LSL R2, R2, R1              @ Shift on bit to PIN number
@@ -192,7 +189,8 @@ set_pin:
     BX lr                       @ Return to caller
 
 clear_pin:
-    LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
+    LDR R3, =memaddress         @ Load GPIO memory location address
+    LDR R3, [R3]                @ Dereference GPIO memory location
     ADD R3, R3, #GPCLR0         @ Add offset to GPCLR0
     MOV R2, #1                  @ Turn off bit
     LSL R2, R2, R1              @ Shift off bit to PIN number
@@ -205,6 +203,8 @@ flags:     .word   2|256        @ Open flag permissions (O_RDWR|O_SYNC)
 
 .data
 message: .word 0                                           @ Initialize input buffer
+
+memaddress: .word 0                                        @ memmap address buffer
 
 .balign 4
 addr_file: .asciz  "/dev/gpiomem\0"                        @ GPIO Controller
