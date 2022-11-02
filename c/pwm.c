@@ -1,5 +1,19 @@
-/* Main C program for controlling PWM of the Red and Green LEDs. This program operates with the assumption that the Raspberry Pi and its components have been set up correctly. */
-#include <pigpio.h>     // Include pigpio library, which is used to interact with the GPIO pins (Note: Using pigpio, not pigpiod_if2!)
+/* 
+    CSC1104 Group Assignment, P3 Group 9
+    2200959  Peter Febrianto Afandy
+    2200692  Adrian Pang Zi Jian
+    2201014  Tng Jian Rong
+    2201018  Jeffrey Yap Wan Lin
+    2201945  Ong Si Hui
+    1902943  Aaron Ti Yu Ren
+
+    pwm.c - Main C program that is used to control the Pulse Width Modulation (PWM) of the Red and Green LEDs. 
+            This program operates with the assumption that the Raspberry Pi and its respective components have 
+            been set up correctly. 
+
+            For more information, please read the README.MD file or group report.
+*/
+#include <pigpio.h>     // Include pigpio library, which is used to interact with the GPIO pins (Note: We are using pigpio, not pigpiod_if2!)
 #include <stdio.h>      // Include stdio library, which is used for input/output functions
 #include <stdlib.h>     // Include stdlib library, which is used for general purpose functions
 #include "config.h"     // Include configuration file
@@ -15,7 +29,7 @@ int main() {
         exit(1); // Terminate program with exit failure if setup failed
     }
     else {
-        // Save LED base states (frequency)
+        // Save both LEDs' base states (frequency) if the GPIO pins have been initialised successfully
         BASE_RED_LED_FREQ = gpioGetPWMfrequency(RED_LED_PIN);         // Save Red LED's PWM Frequency
         BASE_GREEN_LED_FREQ = gpioGetPWMfrequency(GREEN_LED_PIN);     // Save Green LED's PWM Frequency
     }
@@ -34,7 +48,7 @@ int main() {
                "(3) Make Red LED blink 8 times per second and Green LED blink twice per second at reduced brightness\n"
                "(Any other number) End Program\n\n"
                "Enter your choice: ");
-        scanf("%d", &user_input);
+        scanf("%d", &user_input); // Obtain user's input from the keyboard
 
         // Check user's input option
         switch(user_input) {
@@ -44,14 +58,14 @@ int main() {
                 offLED(RED_LED_PIN);      // Turn off Red LED
                 offLED(GREEN_LED_PIN);    // Turn off Green LED
                 printf("Both LEDs turned off!\n\n");
-                break;
+                break; // Break out of case
             case 1:
                 // Option for turning on both LEDs
                 printf("\nTurning on both LEDs..\n");
                 onLED(RED_LED_PIN);       // Turn on Red LED
                 onLED(GREEN_LED_PIN);     // Turn on Green LED
                 printf("Both LEDs turned on!\n\n");
-                break;
+                break; // Break out of case
             case 2:
                 // Option for making both LEDs blink twice per second
                 printf("\nMaking both LEDs blink twice per second (50%% duty cycle)..\n");
@@ -70,10 +84,10 @@ int main() {
                 // Default option for any other user input values
                 // Program termination procedure
                 printf("\nProceeding to end this program..\n");
-                resetLEDs();        // Reset both LEDs
+                resetLEDs();        // Reset both LEDs to their base states (frequency)
                 gpioTerminate();    // Terminate pigpio library before end of program execution
                 printf("GPIO terminated and both LEDs have been reset!\nEnd of Program!\n");
-                break;
+                break; // Break out of case
         }
 
     } while (user_input >= 0 && user_input <= 3); // Loop continues until user chooses to end the program
@@ -83,7 +97,7 @@ int main() {
 
 }
 
-// Function to calculate the duty cycle value
+// Function to calculate the duty cycle value for the pigpio library, given a percentage value
 int getDutyCycleValue(float duty_cycle){
     int value = PWM_MAX  * (duty_cycle / 100); // Calculate value to set for a given duty cycle percentage
     return value;
