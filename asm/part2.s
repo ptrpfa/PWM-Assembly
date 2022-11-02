@@ -55,6 +55,7 @@
 .equ GPFSEL2, 0x08           @ Function register offset
 .equ GPSET0,  0x1C           @ Set register offset
 .equ GPCLR0,  0x28           @ Clear register offset
+.equ CLEAR_MASK, 0b111000    @ Mask to clear function register
 .equ GPFSEL1_MASK, 0x40      @ Mask for function register
 .equ GPFSEL2_MASK, 0x200     @ Mask for function register
 
@@ -97,13 +98,15 @@ main:
     ADD R3, R3, #GPFSEL1        @ Add offset to GPFSEL1
     LDR R2, [R3]                @ Get value of GPFSEL1
     MOV R4, #GPFSEL1_MASK       @ GPFSEL1_MASK bit
+    BIC R2, R2, #CLEAR_MASK     @ Clear GPFSEL1
     ORR R2, R2, R4              @ Set mask for FSEL output
     STR R2, [R3]                @ Store set bits at GPFSEL1
 
     LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
     ADD R3, R3, #GPFSEL2        @ Add offset to GPFSEL2
     LDR R2, [R3]                @ Get value of GPFSEL2
-    MOV R4, #GPFSEL2_MASK       @ GPFSEL1_MASK bit
+    BIC R2, R2, #CLEAR_MASK     @ Clear GPFSEL2
+    MOV R4, #GPFSEL2_MASK       @ GPFSEL2_MASK bit
     ORR R2, R2, R4              @ Set mask for FSEL output
     STR R2, [R3]                @ Store set bits at GPFSEL1
 
