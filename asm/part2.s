@@ -123,44 +123,53 @@ loop:
     LDR R0, =returnprompt       @ Output prompt string
     BL printf                   @ Call printf function
 
+    LDR R4, =message            @ Input buffer address
+    LDR R1, [R4]                @ Dereference input buffer
+
     @ if (message == 1), Turn on red LED
     CMP R1, #1                  @ Compare value with 1
+    ITT EQ                      @ If-then-then
     BLEQ on_red                 @ Call on_red
     BEQ loop                    @ Loopback
 
     @ if (message == 2), Turn on green LED
     CMP R1, #2                  @ Compare value with 2
+    ITT EQ                      @ If-then-then
     BLEQ on_green               @ Call on_green
     BEQ loop                    @ Loopback
 
     @ if (message == 3), Turn off both LEDs
     CMP R1, #3                  @ Compare value with 3
+    IT EQ                       @ If-then-then
     BLEQ off_led                @ Call off_led
 
     B loop                      @ Loopback
 
 on_red:
+    PUSH {R0, R1, lr}           @ Save function context
     LDR R0, =oneprompt          @ Choice one prompt string
     BL printf                   @ Call printf function
     MOV R1, #PIN16              @ Set PIN 16 to be used
     BL set_pin                  @ Set pin to turn on LED
-    BX lr                       @ Return to caller
+    POP {R0, R1, pc}            @ Return to caller
 
 on_green:
+    PUSH {R0, R1, lr}           @ Save function context
     LDR R0, =twoprompt          @ Choice two prompt string
     BL printf                   @ Call printf function
     MOV R1, #PIN17              @ Set PIN 17 to be used
     BL set_pin                  @ Set pin to turn on LED
-    BX lr                       @ Return to caller
+    POP {R0, R1, pc}            @ Return to caller
 
 off_led:
+    PUSH {R0, R1, lr}           @ Save function context
     LDR R0, =threeprompt        @ Choice three prompt string
     BL printf                   @ Call printf function
     MOV R1, #PIN16              @ Set PIN 16 to be used
     BL clear_pin                @ Set pin to turn on LED
     MOV R1, #PIN17              @ Set PIN 17 to be used
     BL clear_pin                @ Set pin to turn on LED
-    BX lr                       @ Return to caller
+    POP {R0, R1, pc}            @ Return to caller
 
 wrong_input:
     LDR R0, =wrongprompt        @ Wrong input prompt string
