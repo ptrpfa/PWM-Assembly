@@ -91,9 +91,9 @@ main:
 
     STR R0, [SP, #STACK_OFFSET] @ Store memory mapped GPIO register location in stack
 
-    MOV R1, #PIN16              @ Set PIN 16 to be used
+    MOV R1, #PIN16 MOD 10       @ Set PIN 16 to be used
     BL init_output              @ Setup GPIO pin function register
-    MOV R1, #PIN17              @ Set PIN 17 to be used
+    MOV R1, #PIN17 MOD 10       @ Set PIN 17 to be used
     BL init_output              @ Setup GPIO pin function register
 
 loop:
@@ -173,12 +173,8 @@ init_output:
     LDR R3, [sp, #STACK_OFFSET] @ Load GPIO memory location
     ADD R3, R3, #GPFSEL1        @ Add offset to GPFSEL1
     LDR R2, [R3]                @ Get value of GPFSEL1
-    MOV R5, #10                 @ Initialize #10
-    UDIV R4, R1, R5             @ Get R1 // 10
-    MUL R4, R4, R5              @ Get R1 // 10 * 10
-    SUB R1, R1, R4              @ Get R1 % 10
-    MOV R5, #3                  @ Initialize #3
-    MUL R1, R1, R5              @ Get (R1 % 10) * 3
+    MOV R4, #3                  @ Initialize #3
+    MUL R1, R1, R4              @ Get (R1 % 10) * 3
     MOV R4, #GPFSEL1_MASK       @ GPFSEL1_MASK bit
     LSL R4, R4, R1              @ Shift GPFSEL1_MASK bit with result
     ORR R2, R2, R4              @ Set mask for FSEL output
