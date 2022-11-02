@@ -85,7 +85,8 @@ main:
     CMP R0, #-1                 @ Compare mmap return value to -1
     BEQ exit                    @ If value == -1, goto exit
 
-    STR R0, =memaddress         @ Store memory mapped GPIO register location in stack
+    LDR R1, =memaddress         @ Load memory address buffer
+    STR R0, [R1]                @ Store memory mapped GPIO register location in buffer
 
     MOV R1, #18                 @ Set PIN 16 bit offset
     BL init_output              @ Setup GPIO pin function register
