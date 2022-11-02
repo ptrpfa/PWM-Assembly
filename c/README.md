@@ -48,9 +48,7 @@ Making the Red LED blink 8 times per second and the Green LED blink twice per se
 #### Installation
 Preferred Method (using apt package installer):
 1. `sudo apt-get update`<br>
-2. `sudo apt-get install pigpio python-pigpio python3-pigpio`
-
-<br>OR<br>
+2. `sudo apt-get install pigpio python-pigpio python3-pigpio`<br><br>
 Alternative Method (download library from Github):
 1. `wget https://github.com/joan2937/pigpio/archive/master.zip`<br>
 2. `unzip master.zip`<br>
