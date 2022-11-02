@@ -46,11 +46,13 @@ Making the Red LED blink 8 times per second and the Green LED blink twice per se
 ---
 *Please note that we are using pigpio, and not pigpiod_if2, which is another separate version of the library!*
 #### Installation
-Preferred Method (using apt package installer):
+Preferred Method (using apt package installer):<br>
+*Run the following commands in your Raspberry Pi*
 1. `sudo apt-get update`<br>
 2. `sudo apt-get install pigpio python-pigpio python3-pigpio`<br><br>
 
-Alternative Method (download library from Github):
+Alternative Method (download library from Github):<br>
+*Run the following commands in your Raspberry Pi*
 1. `wget https://github.com/joan2937/pigpio/archive/master.zip`<br>
 2. `unzip master.zip`<br>
 3. `cd pigpio-master`<br>
