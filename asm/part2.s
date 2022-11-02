@@ -62,8 +62,13 @@
 .equ PROT_RDWR,  0x3         @ Read-write protection (PROT_READ|PROT_WRITE)
 .equ MAP_SHARED, 1           @ Shared permissions
 
+@ Misc Constants
+.equ STACK_OFFSET, 4         @ Stack offset size
+
 .text
 main:
+    SUB SP, SP, #STACK_OFFSET   @ Allocate stack by 4 bytes
+
     @ Open /dev/gpiomem for read-write and syncing
     @ fd = open("/dev/gpiomem\0", O_RDWR)
     LDR R0, =addr_file          @ GPIO Controller address
