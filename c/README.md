@@ -1,22 +1,19 @@
 ## Pulse-Width Modulation Program
 ---
 ### Usage
-1. Download source code and and ensure that pigpio has been [installed](#pigpio) into the Raspberry Pi.
+---
+1. Download source code and and ensure that pigpio has been [installed](#pigpio-c-library) into the Raspberry Pi.
 2. Ensure that the Raspberry Pi and its required components have been [set up](#raspberry-pi-setup) correctly.
 3. Compile the Pulse-Width Modulation program.<br>
-    ` gcc -Wall -pthread -o pwm pwm.c -l pigpio -lrt`<br>
+    ` gcc -Wall -pthread -o pwm pwm.c -l pigpio -lrt`<br><br>
+    *Flags:<br>
+    -Wall : Enable all compiler warning messages<br>
+    -pthread : Add support for multithreading with the pthreads library. This option sets the flags for both the preprocessor and linker. <br>
+    -o : Used to specify the output file name<br>
+    -l <library> : Link to specified library <br>
+    -lrt : Link in real time <br>*
 4. Run/execute the Pulse-Width Modulation program (root privileges are required to run the program!)<br>
     `sudo ./pwm ` <br>
-
-#### Compile program
-`gcc -Wall -pthread prog.c -lpigpio -lrt`<br>
-`sudo ./a.out`<br><br>
-Flags:<br>
--Wall : Enable all compiler warning messages<br>
--pthread : Add support for multithreading with the pthreads library. This option sets the flags for both the preprocessor and linker. <br>
--o : Used to specify the output file name<br>
--l <library> : Link to specified library <br>
--lrt : Link in real time <br>
 
 #### Sample program execution previews
 ---
@@ -28,6 +25,7 @@ Making the Red LED blink 8 times per second and the Green LED blink twice per se
 ![Code preview for making LEDs blink at different rates](docs/blink.png)
 
 ### Raspberry Pi Setup
+---
 #### Components Required
 - 1 x Raspberry Pi Model 3B
 - 1 x Breadboard
