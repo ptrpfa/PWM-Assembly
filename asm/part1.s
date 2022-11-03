@@ -14,8 +14,8 @@ main:
     LDR R1, =message            @ Input buffer address
     BL scanf                    @ Call scanf function
 
-    LDR R4, =message            @ Input buffer address
-    LDR R1, [R4]                @ Dereference input buffer
+    LDR R2, =message            @ Input buffer address
+    LDR R1, [R2]                @ Dereference input buffer
 
     CMP R1, #0                  @ Compare value with 0
     BLE wrong_input             @ If value <= 0, goto wrong_input
@@ -44,7 +44,7 @@ scanf_fmt: .string "%d"         @ scanf format specifier
 askuserprompt: .asciz "Please Enter a number 1 to 3: "              @ Initial prompt string
 
 .balign 4
-returnprompt: .asciz "Your inputted number is: %d\n"                @ Output prompt string
+returnprompt: .asciz "Your inputted number is: %d, stored at %p\n"                @ Output prompt string
 
 .balign 4
 wrongprompt: .asciz "Your inputted number is not within 1 to 3\n"   @ Wrong input prompt string
