@@ -168,9 +168,9 @@ off_led:
     LDR R0, =threeprompt        @ Choice three prompt string
     BL printf                   @ Call printf function
     MOV R1, #RED_LED_PIN        @ Set PIN 18 to be used
-    BL clear_pin                @ Set pin to turn on LED
+    BL clear_pin                @ Set pin to turn off LED
     MOV R1, #GREEN_LED_PIN      @ Set PIN 13 to be used
-    BL clear_pin                @ Set pin to turn on LED
+    BL clear_pin                @ Set pin to turn off LED
     POP {R0, R1, pc}            @ Return to caller
 
 wrong_input:
