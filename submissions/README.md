@@ -13,13 +13,21 @@ Group Members:<br>
 ```
 README.md (this file)
 
-assembly/
-    part1.s
-    part2.s
+P3-Group09-CSC1104.docx
 
-c/
-    README.md
-    config.h
-    pwm.c
-    docs/ (contains project images)
+presentation/
+    P3-Group09-CSC1104.mp4
+    P3-Group09(Demo)-CSC1104.mp4
+    P3-Group09(Slides)-CSC1104.pptx
+
+source-code/
+    assembly/
+        part1.s
+        part2.s
+
+    c/
+        docs/ (contains project images)
+        README.md
+        config.h
+        pwm.c
 ```
