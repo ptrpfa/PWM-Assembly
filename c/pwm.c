@@ -1,11 +1,11 @@
 /* 
-    CSC1104 Group Assignment, P3 Group 9
-    2200959  Peter Febrianto Afandy
-    2200692  Adrian Pang Zi Jian
-    2201014  Tng Jian Rong
-    2201018  Jeffrey Yap Wan Lin
-    2201945  Ong Si Hui
-    1902943  Aaron Ti Yu Ren
+    Group Assignment, P3 Group 9
+    Peter Febrianto Afandy
+    Adrian Pang Zi Jian
+    Tng Jian Rong
+    Jeffrey Yap Wan Lin
+    Ong Si Hui
+    Aaron Ti Yu Ren
 
     pwm.c - Main C program that is used to control the Pulse Width Modulation (PWM) of the Red and Green LEDs. 
             This program operates with the assumption that the Raspberry Pi and its respective components have 
